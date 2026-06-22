@@ -1,6 +1,4 @@
 name: Generate Synthetic Data → MongoDB Atlas
-env:
-  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
 
 on:
   push:
