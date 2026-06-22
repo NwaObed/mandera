@@ -1,5 +1,6 @@
 name: Generate Synthetic Data → MongoDB Atlas
-
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 on:
   push:
     branches:
@@ -24,15 +25,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        # uses: actions/checkout@v4
-        uses: actions/checkout@v6
-      
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '14'
-        # run: npm install -g bats
-        # run: bats -v
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
