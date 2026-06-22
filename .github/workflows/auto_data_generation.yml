@@ -24,7 +24,13 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        # uses: actions/checkout@v4
+        uses: actions/checkout@v6
+        uses: actions/setup-node@v4
+        with:
+          node-version: '14'
+        run: npm install -g bats
+        run: bats -v
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -38,8 +44,8 @@ jobs:
 
       - name: Generate synthetic data → MongoDB Atlas
         env:
-          MONGO_URI: ${{ secrets.MONGO_URI }} # mongodb+srv://<username>:<password>@cluster0.mongodb.net
-          MONGO_DB: ${{ secrets.MONGO_DB }} # mandera_analytics
+          MONGO_URI: ${{ secrets.MONGO_URI }} 
+          MONGO_DB: ${{ secrets.MONGO_DB }} 
         run: python -m generator.data_generator
 
       - name: Log summary
