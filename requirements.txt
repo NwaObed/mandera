@@ -1,0 +1,12 @@
+Package           Version    
+----------------- -----------
+dnspython         2.6.1      
+Faker             35.2.2     
+pip               20.0.2     
+pkg-resources     0.0.0      
+pymongo           4.10.1     
+python-dateutil   2.9.0.post0
+python-dotenv     1.0.1      
+setuptools        44.0.0     
+six               1.17.0     
+typing-extensions 4.13.2     
