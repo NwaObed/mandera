@@ -10,7 +10,8 @@ from typing import List, Dict
 from faker import Faker
 
 fake = Faker()
-from config.settings import MONGO_COLLECTIONS, CUSTOMERS_MIN, CUSTOMERS_MAX
+from config.settings import CUSTOMERS_MAX, CUSTOMERS_MIN
+
 
 def introduce_bad_data(customer: Dict[str, any]) -> Dict[str, any]:
     """Randomly introduce bad data into the customer record to simulate real-world scenarios.
