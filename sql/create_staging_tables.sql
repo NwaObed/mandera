@@ -1,7 +1,7 @@
 CREATE SCHEMA IF NOT EXISTS staging;
 
 CREATE TABLE IF NOT EXISTS staging.customers_clean (
-    customer_id   VARCHAR(50)  NOT NULL,
+    customer_id   VARCHAR(50)  PRIMARY KEY,
     name          VARCHAR(200) NOT NULL,
     email         VARCHAR(200),
     phone         VARCHAR(50),
@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS staging.customers_clean (
 
 
 CREATE TABLE IF NOT EXISTS staging.products_clean (
-    product_id    VARCHAR(50)  NOT NULL,
+    product_id    VARCHAR(50)  PRIMARY KEY,
     product_name  VARCHAR(200) NOT NULL,
     category      VARCHAR(100),
     price         NUMERIC(12,2),
@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS staging.products_clean (
 );
 
 CREATE TABLE IF NOT EXISTS staging.orders_clean (
-    order_id       VARCHAR(50)  NOT NULL,
+    order_id       VARCHAR(50)  PRIMARY KEY,
     customer_id    VARCHAR(50)  NOT NULL,
     product_id     VARCHAR(50)  NOT NULL,
     region         VARCHAR(100) NOT NULL,
