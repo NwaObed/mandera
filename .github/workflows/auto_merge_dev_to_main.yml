@@ -1,0 +1,72 @@
+name: Auto PR and Merge dev → main
+
+on:
+  push:
+    branches:
+      - dev
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  create-and-merge:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create or reuse pull request
+        id: create_pr
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const head = 'dev';
+            const base = 'main';
+
+            const { data: openPRs } = await github.rest.pulls.list({
+              owner,
+              repo,
+              state: 'open',
+              head: `${owner}:${head}`,
+              base,
+            });
+
+            if (openPRs.length > 0) {
+              const pr = openPRs[0];
+              core.setOutput('number', pr.number.toString());
+              core.setOutput('url', pr.html_url);
+              return;
+            }
+
+            const { data: pr } = await github.rest.pulls.create({
+              owner,
+              repo,
+              title: 'Sync dev into main',
+              body: 'Automatically created pull request to merge dev changes into main.',
+              head,
+              base,
+            });
+
+            core.setOutput('number', pr.number.toString());
+            core.setOutput('url', pr.html_url);
+
+      - name: Merge pull request
+        if: steps.create_pr.outputs.number != ''
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const pull_number = parseInt("${{ steps.create_pr.outputs.number }}", 10);
+            await github.rest.pulls.merge({
+              owner,
+              repo,
+              pull_number,
+              merge_method: 'merge',
+            });
