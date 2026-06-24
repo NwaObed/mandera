@@ -1,0 +1,127 @@
+x-airflow-common: &airflow-common
+  build:
+    context: .
+    dockerfile: Dockerfile
+  env_file: .env
+  volumes:
+    - ./airflow/dags:/opt/airflow/dags
+    - ./extraction:/opt/airflow/extraction
+    - ./transformation:/opt/airflow/transformation
+    - ./validation:/opt/airflow/validation
+    - ./maintenance:/opt/airflow/maintenance
+    - ./generator:/opt/airflow/generator
+    - ./config:/opt/airflow/config
+    - ./sql:/opt/airflow/sql
+    - ./logs:/opt/airflow/logs
+  depends_on:
+    postgres:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+    minio:
+      condition: service_healthy
+
+services:
+  # ── PostgreSQL (Warehouse + Airflow metadata) ──
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "${POSTGRES_EXTERNAL_PORT:-5433}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      retries: 5
+
+  # ── MinIO (S3-compatible object storage) ──
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    ports:
+      - "9000:9000"   # API
+      - "9001:9001"   # Console UI
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      retries: 5
+
+  # ── pgAdmin (PostgreSQL web UI) ──
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
+    ports:
+      - "5000:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+      - ./config/pgadmin_servers.json:/pgadmin4/servers.json:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # ── Redis (Airflow Celery broker) ──
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      retries: 5
+
+  # ── Airflow Webserver ──
+  airflow-webserver:
+    <<: *airflow-common
+    command: >
+      bash -c "
+        airflow db migrate &&
+        airflow users create --username admin --password admin --firstname Admin --lastname User --role Admin --email admin@manderaanalytics.io || true &&
+        airflow webserver
+      "
+    ports:
+      - "8080:8080"
+
+  # ── Airflow Scheduler ──
+  airflow-scheduler:
+    <<: *airflow-common
+    command: airflow scheduler
+
+  # ── Airflow Celery Worker ──
+  airflow-worker:
+    <<: *airflow-common
+    command: airflow celery worker
+
+  # ── DB Setup (run once) ──
+  db-setup:
+    <<: *airflow-common
+    command: >
+      bash -c "
+        psql -h postgres -U ${POSTGRES_USER} -d ${POSTGRES_DB} -f /opt/airflow/sql/create_raw_tables.sql &&
+        psql -h postgres -U ${POSTGRES_USER} -d ${POSTGRES_DB} -f /opt/airflow/sql/create_staging_tables.sql &&
+        psql -h postgres -U ${POSTGRES_USER} -d ${POSTGRES_DB} -f /opt/airflow/sql/create_staging_tmp_tables.sql &&
+        psql -h postgres -U ${POSTGRES_USER} -d ${POSTGRES_DB} -f /opt/airflow/sql/create_monitoring_tables.sql
+      "
+    environment:
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+volumes:
+  postgres_data:
+  minio_data:
+  pgadmin_data:

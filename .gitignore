@@ -6,5 +6,5 @@ __pycache__/
 *.pptx
 *.docx
 *.pdf
-test.py
+test.*
 mandera_env/

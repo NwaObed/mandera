@@ -1,5 +1,6 @@
 dnspython==2.6.1
 Faker==35.2.2
+psycopg2==2.9.10
 pymongo==4.10.1
 python-dateutil==2.9.0.post0
 python-dotenv==1.0.1
