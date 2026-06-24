@@ -39,7 +39,8 @@ def generate_customers(batch_id: str) -> List[Dict]:
             "phone": fake.phone_number(),
             "created_at": datetime.now(timezone.utc),
             "city": fake.city(),
-            "country": fake.country()
+            "country": fake.country(),
+            "batch_id": batch_id,
         }
 
         bad_customer = introduce_bad_data(new_customer)

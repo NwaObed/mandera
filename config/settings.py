@@ -1,26 +1,9 @@
 
 import os
 from datetime import datetime, timezone
-from pathlib import Path
 
-from dotenv import load_dotenv
+from config import env  # noqa: F401
 
-load_dotenv(Path(__file__).parent.parent / ".env")
-
-# MongoDB Atlas
-MONGO_URI = os.getenv("MONGO_URI")
-if not MONGO_URI:
-    raise EnvironmentError("MONGO_URI environment variable is not set")
-
-MONGO_DB = os.getenv("MONGO_DB")
-if not MONGO_DB:
-    raise EnvironmentError("MONGO_DB environment variable is not set")
-
-MONGO_COLLECTIONS = {
-    "customers": "customers",
-    "products": "products",
-    "orders": "orders"
-}
 
 # Data generation settings
 CUSTOMERS_MIN = 10

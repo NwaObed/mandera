@@ -14,7 +14,9 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from pymongo import MongoClient
 
-from config.settings import MONGO_URI, MONGO_DB, MONGO_COLLECTIONS, generate_batch_id
+from config.settings import generate_batch_id
+from config.mongo_settings import MONGO_URI, MONGO_DB, MONGO_COLLECTIONS
+
 from generator import faker_customers, faker_products, faker_orders
 
 
