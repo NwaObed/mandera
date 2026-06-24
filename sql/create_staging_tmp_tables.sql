@@ -10,9 +10,7 @@
 -- before validation ever runs.
 CREATE SCHEMA IF NOT EXISTS staging_tmp;
 
-CREATE SCHEMA IF NOT EXISTS staging;
-
-CREATE TABLE IF NOT EXISTS staging.customers_clean (
+CREATE TABLE IF NOT EXISTS staging_tmp.customers_clean (
     customer_id   TEXT,
     name          TEXT,
     email         TEXT,
@@ -25,7 +23,7 @@ CREATE TABLE IF NOT EXISTS staging.customers_clean (
 );
 
 
-CREATE TABLE IF NOT EXISTS staging.products_clean (
+CREATE TABLE IF NOT EXISTS staging_tmp.products_clean (
     product_id    TEXT,
     product_name  TEXT,
     category      TEXT,
@@ -34,7 +32,7 @@ CREATE TABLE IF NOT EXISTS staging.products_clean (
     created_at    TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS staging.orders_clean (
+CREATE TABLE IF NOT EXISTS staging_tmp.orders_clean (
     order_id       TEXT,
     customer_id    TEXT,
     product_id     TEXT,
