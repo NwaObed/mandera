@@ -72,9 +72,10 @@ def validate():
                 errors.append(f"Found {count} orders with invalid amount")
 
             # ── payment_status must be valid ───────────────────
-            allowed = tuple(PAYMENT_STATUSES)
+
+            allowed = tuple(ps.lower() for ps in PAYMENT_STATUSES)
             cur.execute(
-                "SELECT DISTINCT payment_status FROM staging_tmp.orders_clean WHERE payment_status NOT IN %s",
+                "SELECT DISTINCT payment_status FROM staging_tmp.orders_clean WHERE LOWER(payment_status) NOT IN %s",
                 (allowed,),
             )
             invalid = [row[0] for row in cur.fetchall()]

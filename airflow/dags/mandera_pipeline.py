@@ -25,7 +25,7 @@ from extraction.mongo_to_postgres_pipeline import extract_to_postgres
 from validation.validate_batch_counts import log_counts
 from validation.validate_data_quality import validate
 from transformation.transform_customers import (
-    transform as transform_customers,
+    transform_customers,
     write as write_customers,
 )
 from transformation.transform_products import (
