@@ -123,6 +123,3 @@ sql/             Warehouse schema definitions
 config/          Service configuration
 ```
 
-## License
-
-No license has been specified.
